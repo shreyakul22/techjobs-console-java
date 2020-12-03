@@ -10,6 +10,7 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by LaunchCode
@@ -51,6 +52,7 @@ public class JobData {
         // load data, if not already loaded
         loadData();
 
+
         return allJobs;
     }
 
@@ -61,10 +63,31 @@ public class JobData {
      * For example, searching for employer "Enterprise" will include results
      * with "Enterprise Holdings, Inc".
      *
-     * @param column   Column that should be searched.
      * @param value Value of teh field to search for
      * @return List of all jobs matching the criteria
      */
+    public static ArrayList<HashMap<String, String>> findByValue(String value) {
+
+        // load data, if not already loaded
+        loadData();
+
+        ArrayList<HashMap<String, String>> jobs = new ArrayList<>();
+
+        for (HashMap<String, String> row : allJobs) {
+            Set<String> keySet = row.keySet();
+
+            for (String key : keySet) {
+                String aValue = row.get(key);
+                aValue = aValue.toLowerCase();
+                value = value.toLowerCase();
+                if (aValue.contains(value)) {
+                    jobs.add(row);
+                }
+            }
+        }
+
+        return jobs;
+    }
     public static ArrayList<HashMap<String, String>> findByColumnAndValue(String column, String value) {
 
         // load data, if not already loaded
@@ -75,6 +98,9 @@ public class JobData {
         for (HashMap<String, String> row : allJobs) {
 
             String aValue = row.get(column);
+
+            aValue = aValue.toLowerCase();
+            value = value.toLowerCase();
 
             if (aValue.contains(value)) {
                 jobs.add(row);
@@ -100,7 +126,7 @@ public class JobData {
             Reader in = new FileReader(DATA_FILE);
             CSVParser parser = CSVFormat.RFC4180.withFirstRecordAsHeader().parse(in);
             List<CSVRecord> records = parser.getRecords();
-            Integer numberOfColumns = records.get(0).size();
+            int numberOfColumns = records.get(0).size();
             String[] headers = parser.getHeaderMap().keySet().toArray(new String[numberOfColumns]);
 
             allJobs = new ArrayList<>();
